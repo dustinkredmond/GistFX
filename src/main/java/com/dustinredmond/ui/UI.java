@@ -16,6 +16,15 @@ public class UI extends Application {
         stage.setScene(new Scene(new Group()));
         new LoginWindow();
         stage.show();
+
+        // TODO remove when finished dev
+        String todo = "" +
+                "1. Implement GistOverviewWindow's add gist function\n" +
+                "\t Be sure to wire up the buttons and context menu\n" +
+                "2. Implement the Add/Delete GistFiles\n" +
+                "\t Create Context Menu and Buttons over ListView\n" +
+                "\t Debug exception sometimes thrown when saving GistFile";
+        CustomAlert.showInfo(todo);
     }
 
     public void startUi(String[] args) {

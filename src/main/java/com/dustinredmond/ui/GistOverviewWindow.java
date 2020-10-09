@@ -1,27 +1,26 @@
 package com.dustinredmond.ui;
 
 import com.dustinredmond.github.GitHubApi;
+import com.dustinredmond.javafx.CustomAlert;
 import com.dustinredmond.javafx.PaddedGridPane;
 import com.dustinredmond.utils.StringUtils;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 import org.eclipse.egit.github.core.Gist;
 import org.eclipse.egit.github.core.GistFile;
+import org.eclipse.egit.github.core.service.GistService;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Objects;
 
@@ -47,6 +46,8 @@ public class GistOverviewWindow {
         grid.add(buttonBar, 0, rowIndex++, 2, 1);
 
         TableView<Gist> table = getGistTableView();
+        buttonEdit.setOnAction(e -> controller.editGist(table));
+        buttonDelete.setOnAction(e -> controller.deleteGist(table));
         GridPane.setVgrow(table, Priority.ALWAYS);
         GridPane.setHgrow(table, Priority.ALWAYS);
         grid.add(table, 0, rowIndex);
@@ -94,8 +95,31 @@ public class GistOverviewWindow {
                 displayGistFileList(gist);
             }
         });
+        
+        // Don't show the context menu if no table item is selected
+        // or if the context menu is already open
+        table.setOnContextMenuRequested(e -> {
+            if (table.getSelectionModel().isEmpty() || table.getContextMenu().isShowing()) {
+                e.consume();
+            }
+        });
+        
+        table.setContextMenu(getGistTableViewContextMenu(table));
 
         return table;
+    }
+
+    private ContextMenu getGistTableViewContextMenu(TableView<Gist> table) {
+        ContextMenu cm = new ContextMenu();
+
+        MenuItem miAdd = new MenuItem("Add Gist");
+        miAdd.setOnAction(e -> controller.createGist(table));
+        MenuItem miEdit = new MenuItem("Edit Gist");
+        miEdit.setOnAction(e -> controller.editGist(table));
+        MenuItem miDelete = new MenuItem("Delete Gist");
+        miDelete.setOnAction(e -> controller.deleteGist(table));
+        cm.getItems().addAll(miAdd, miEdit, miDelete);
+        return cm;
     }
 
     private ListView<GistFile> getGistFileListView(Gist gist) {
