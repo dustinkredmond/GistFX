@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.eclipse.egit.github.core.Gist;
+import org.eclipse.egit.github.core.GistFile;
 import org.eclipse.egit.github.core.service.GistService;
 
 import java.io.IOException;
@@ -14,6 +15,20 @@ import java.io.IOException;
 public class GistOverviewWindowController {
 
     public void createGist(TableView<Gist> table) {
+
+        // See below Gist file structure
+        // For each Gist, allow single file creation
+        // Upon completion of the GistFile built,
+        // update TableView with new GistFile (obtained from GistService)
+        // Do not put initially created Gist in TableView, as will be missing ID,
+        // Since GitHub will assign this.
+//        Gist gist = new Gist();
+//        gist.setDescription("");
+//        gist.setPublic(false);
+//        GistFile file = new GistFile();
+//        file.setFilename("");
+//        file.setContent("");
+//        gist.getFiles().put(file.getFilename(), file);
 
     }
 
