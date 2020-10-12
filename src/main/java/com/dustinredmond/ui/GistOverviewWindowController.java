@@ -220,7 +220,7 @@ public class GistOverviewWindowController {
                 URI uri = new URI(gist.getHtmlUrl());
                 Desktop.getDesktop().browse(uri);
             } catch (URISyntaxException | IOException e) {
-                CustomAlert.showExceptionDialog(e, "Invalid URI");
+                CustomAlert.showExceptionDialog(e, "Unable to browse to: " + gist.getHtmlUrl());
             }
         }
     }
