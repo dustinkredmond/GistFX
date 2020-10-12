@@ -96,21 +96,17 @@ public class GistOverviewWindowController {
     }
 
     private void showEditGistForm(TableView<Gist> table) {
+        Gist gist = table.getSelectionModel().getSelectedItem();
+
         Stage stage = new CustomStage();
-        stage.setTitle(String.format("%s - Edit Gist", UI.APP_TITLE));
+        stage.setTitle(String.format("%s - Edit Gist - ID: %s", UI.APP_TITLE, gist.getId()));
         PaddedGridPane grid = new PaddedGridPane(5, 10);
         stage.setScene(new Scene(grid));
 
-        Gist gist = table.getSelectionModel().getSelectedItem();
 
-        TextField tfId = new TextField(gist.getId());
-        tfId.setEditable(false);
-        grid.add(new Label("ID:"), 0, 0);
-        grid.add(tfId, 1, 0);
-
-        TextArea taDescription = new TextArea(gist.getDescription());
-        grid.add(new Label("Gist Description"), 0, 1);
-        grid.add(taDescription, 0, 2, 2, 1);
+        TextField taDescription = new TextField(gist.getDescription());
+        grid.add(new Label("Gist Description:"), 0, 0);
+        grid.add(taDescription, 1, 0);
 
         Button buttonSave = new Button("Save Changes");
         buttonSave.setOnAction(e -> {
@@ -120,7 +116,7 @@ public class GistOverviewWindowController {
             this.updateGist(gist, description);
             stage.hide();
         });
-        grid.add(buttonSave, 0, 3);
+        grid.add(buttonSave, 0, 1);
 
         stage.show();
     }
@@ -194,7 +190,7 @@ public class GistOverviewWindowController {
         stage.show();
     }
 
-    public void deleteGistFile(ListView<GistFile> listView, Gist gist) {
+    public void deleteGistFile(Gist gist) {
         final String prompt = "Deleting a Gist File is not currently " +
                 "available from the client. Would you like to open the Gist on GitHub?";
         if (CustomAlert.showConfirmation(prompt)) {

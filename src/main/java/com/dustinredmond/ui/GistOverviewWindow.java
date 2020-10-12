@@ -47,7 +47,13 @@ public class GistOverviewWindow {
 
         TableView<Gist> table = getGistTableView();
         buttonAdd.setOnAction(e -> controller.createGist(table));
-        buttonEdit.setOnAction(e -> controller.editGist(table));
+        buttonEdit.setOnAction(e -> {
+            if (!table.getSelectionModel().isEmpty()) {
+                displayGistFileList(table.getSelectionModel().getSelectedItem());
+            } else {
+                CustomAlert.showWarning("Please select a Gist first.");
+            }
+        });
         buttonDelete.setOnAction(e -> controller.deleteGist(table));
         GridPane.setVgrow(table, Priority.ALWAYS);
         GridPane.setHgrow(table, Priority.ALWAYS);
@@ -82,7 +88,7 @@ public class GistOverviewWindow {
                 CustomAlert.showWarning("Please select a Gist file first.");
             }
         });
-        buttonDeleteFile.setOnAction(e -> controller.deleteGistFile(listView, gist));
+        buttonDeleteFile.setOnAction(e -> controller.deleteGistFile(gist));
 
         stage.setScene(new Scene(grid, 600, 200));
         stage.centerOnScreen();
@@ -135,14 +141,16 @@ public class GistOverviewWindow {
         miCopy.setOnAction(e -> controller.copyUrl(table));
         MenuItem miBrowse = new MenuItem("View on GitHub");
         miBrowse.setOnAction(e -> controller.browseGistUrl(table));
+        MenuItem miEditDesc = new MenuItem("Edit Description");
+        miEditDesc.setOnAction(e -> controller.editGist(table));
 
         MenuItem miAdd = new MenuItem("Add Gist");
         miAdd.setOnAction(e -> controller.createGist(table));
         MenuItem miEdit = new MenuItem("Edit Gist");
-        miEdit.setOnAction(e -> controller.editGist(table));
+        miEdit.setOnAction(e -> displayGistFileList(table.getSelectionModel().getSelectedItem()));
         MenuItem miDelete = new MenuItem("Delete Gist");
         miDelete.setOnAction(e -> controller.deleteGist(table));
-        cm.getItems().addAll(miCopy, miBrowse,
+        cm.getItems().addAll(miCopy, miBrowse, miEditDesc,
                 new SeparatorMenuItem(), miAdd, miEdit, miDelete);
         return cm;
     }
