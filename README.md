@@ -28,7 +28,9 @@ manipulating Gists a breeze.
 You will be presented with a login screen, enter the GitHub personal 
 access token created in step one, above.
 
-!(GistFX-Login Image)[./img/GistFX-Login.png] 
+
+ ![Login image](./img/GistFX-Login.png) 
+ 
 
 If you click the `Save Access Token` checkbox, GistFX will save this info locally
 on your PC so that you do not have to enter a token next time.
