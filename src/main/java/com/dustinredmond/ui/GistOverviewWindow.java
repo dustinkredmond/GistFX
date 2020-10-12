@@ -18,9 +18,7 @@ import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import org.eclipse.egit.github.core.Gist;
 import org.eclipse.egit.github.core.GistFile;
-import org.eclipse.egit.github.core.service.GistService;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Objects;
 
@@ -46,24 +44,45 @@ public class GistOverviewWindow {
         grid.add(buttonBar, 0, rowIndex++, 2, 1);
 
         TableView<Gist> table = getGistTableView();
+        buttonAdd.setOnAction(e -> controller.createGist(table));
         buttonEdit.setOnAction(e -> controller.editGist(table));
         buttonDelete.setOnAction(e -> controller.deleteGist(table));
         GridPane.setVgrow(table, Priority.ALWAYS);
         GridPane.setHgrow(table, Priority.ALWAYS);
+
         grid.add(table, 0, rowIndex);
     }
 
     private void displayGistFileList(Gist gist) {
         Stage stage = new Stage();
 
-        String gistDesc = StringUtils.truncate(gist.getDescription(), 45) + "...";
+        String gistDesc = StringUtils.truncate(gist.getDescription(), 30) + "...";
         stage.setTitle(String.format("%s - %s - %s", UI.APP_TITLE, gistDesc, "Select a Gist File"));
         PaddedGridPane grid = new PaddedGridPane(5, 10);
 
+        Button buttonAddFile = new Button("Add File");
+        Button buttonEditFile = new Button("Edit File");
+        Button buttonDeleteFile = new Button("Delete File");
+        ButtonBar buttonBar = new ButtonBar();
+        // FIXME since github api does not correctly work, not adding delete currently
+        buttonBar.getButtons().addAll(buttonAddFile, buttonEditFile);
+        //buttonBar.getButtons().addAll(buttonAddFile, buttonEditFile, buttonDeleteFile);
+        grid.add(buttonBar, 0, 0);
+
         ListView<GistFile> listView = getGistFileListView(gist);
-        grid.add(listView, 0, 0);
+        grid.add(listView, 0, 1);
         GridPane.setHgrow(listView, Priority.ALWAYS);
         GridPane.setVgrow(listView, Priority.ALWAYS);
+
+        buttonAddFile.setOnAction(e -> controller.createGistFile(listView, gist));
+        buttonEditFile.setOnAction(e -> {
+            if (!listView.getSelectionModel().isEmpty()) {
+                GistEditor.showEdit(gist, listView.getSelectionModel().getSelectedItem());
+            } else {
+                CustomAlert.showWarning("Please select a Gist file first.");
+            }
+        });
+        buttonDeleteFile.setOnAction(e -> controller.deleteGistFile(listView, gist));
 
         stage.setScene(new Scene(grid, 600, 200));
         stage.centerOnScreen();
@@ -112,13 +131,16 @@ public class GistOverviewWindow {
     private ContextMenu getGistTableViewContextMenu(TableView<Gist> table) {
         ContextMenu cm = new ContextMenu();
 
+        MenuItem miCopy = new MenuItem("Copy Gist URL");
+        miCopy.setOnAction(e -> controller.copyUrl(table));
+
         MenuItem miAdd = new MenuItem("Add Gist");
         miAdd.setOnAction(e -> controller.createGist(table));
         MenuItem miEdit = new MenuItem("Edit Gist");
         miEdit.setOnAction(e -> controller.editGist(table));
         MenuItem miDelete = new MenuItem("Delete Gist");
         miDelete.setOnAction(e -> controller.deleteGist(table));
-        cm.getItems().addAll(miAdd, miEdit, miDelete);
+        cm.getItems().addAll(miCopy, new SeparatorMenuItem(), miAdd, miEdit, miDelete);
         return cm;
     }
 
@@ -150,29 +172,29 @@ public class GistOverviewWindow {
             }
         });
 
-        return listView;
-//        TableView<GistFile> table = new TableView<>();
-//
-//        TableColumn<GistFile, String> columnTitle = new TableColumn<>("File");
-//        columnTitle.setCellValueFactory(f -> new SimpleObjectProperty<>(f.getValue().getFilename()));
-//        table.getColumns().add(columnTitle);
-//
-//        TableColumn<GistFile, String> columnUrl = new TableColumn<>("URL");
-//        columnUrl.setCellValueFactory(f ->
-//                new SimpleStringProperty(
-//                        StringUtils.truncate(f.getValue().getRawUrl(), 60)));
-//        table.getColumns().add(columnUrl);
-//        gist.getFiles().forEach((fileName, gistFile) -> table.getItems().add(gistFile));
-//
-//        table.setOnMouseClicked(click -> {
-//            if (MouseButton.PRIMARY.equals(click.getButton()) && click.getClickCount() == 2
-//                    && !table.getSelectionModel().isEmpty()) {
-//                GistFile file = table.getSelectionModel().getSelectedItem();
-//                GistEditor.showEdit(gist, file);
-//            }
-//        });
+        listView.setContextMenu(getGistFileListViewContextMenu(listView, gist));
 
-//        return table;
+        return listView;
+    }
+
+    private ContextMenu getGistFileListViewContextMenu(ListView<GistFile> listView, Gist gist) {
+        ContextMenu cm = new ContextMenu();
+
+        MenuItem miAdd = new MenuItem("Add Gist file");
+        miAdd.setOnAction(e -> controller.createGistFile(listView, gist));
+        MenuItem miEdit = new MenuItem("Edit Gist file");
+        miEdit.setOnAction(e -> {
+            if (listView.getSelectionModel().isEmpty()) {
+                return;
+            }
+            GistEditor.showEdit(gist, listView.getSelectionModel().getSelectedItem());
+        });
+
+        cm.getItems().addAll(miAdd, miEdit);
+
+        miAdd.setOnAction(e -> controller.createGistFile(listView, gist));
+
+        return cm;
     }
 
     private static LinkedHashMap<String,String> gistPropertyMap() {

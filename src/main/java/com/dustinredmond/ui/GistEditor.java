@@ -5,10 +5,7 @@ import com.dustinredmond.javafx.CustomAlert;
 import com.dustinredmond.javafx.PaddedGridPane;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
@@ -18,12 +15,13 @@ import org.eclipse.egit.github.core.service.GistService;
 
 import java.io.IOException;
 
+/**
+ * TODO Make this class use RichTextFX's CodeArea with
+ *  smart syntax highlighting instead of TextArea
+ */
 public class GistEditor {
 
     public static void showEdit(Gist gist, GistFile gistFile) {
-        // NOTE gistFile's getContent will return null, get
-        // instead from GistService
-
         GistService service = new GistService(GitHubApi.getInstance().getGitHubClient());
 
         String content;
@@ -44,6 +42,10 @@ public class GistEditor {
 
         Button buttonSubmit = new Button("Save Changes");
         buttonSubmit.setOnAction(e -> {
+            if (taCode.getText().trim().isEmpty()) {
+                CustomAlert.showWarning("Gist file name and contents are required.");
+                return;
+            }
             gistFile.setContent(taCode.getText());
             gist.getFiles().put(gistFile.getFilename(), gistFile);
             saveUpdatedGistFile(gist, stage);

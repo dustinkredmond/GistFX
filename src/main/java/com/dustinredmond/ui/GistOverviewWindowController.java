@@ -4,31 +4,71 @@ import com.dustinredmond.github.GitHubApi;
 import com.dustinredmond.javafx.CustomAlert;
 import com.dustinredmond.javafx.PaddedGridPane;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.stage.Stage;
 import org.eclipse.egit.github.core.Gist;
 import org.eclipse.egit.github.core.GistFile;
 import org.eclipse.egit.github.core.service.GistService;
 
 import java.io.IOException;
+import java.util.Collections;
 
 public class GistOverviewWindowController {
 
     public void createGist(TableView<Gist> table) {
+        showAddGistForm(table);
+    }
 
-        // See below Gist file structure
-        // For each Gist, allow single file creation
-        // Upon completion of the GistFile built,
-        // update TableView with new GistFile (obtained from GistService)
-        // Do not put initially created Gist in TableView, as will be missing ID,
-        // Since GitHub will assign this.
-//        Gist gist = new Gist();
-//        gist.setDescription("");
-//        gist.setPublic(false);
-//        GistFile file = new GistFile();
-//        file.setFilename("");
-//        file.setContent("");
-//        gist.getFiles().put(file.getFilename(), file);
+    private void showAddGistForm(TableView<Gist> table) {
+        Stage stage = new Stage();
+        PaddedGridPane grid = new PaddedGridPane(5, 10);
+        stage.setTitle(UI.APP_TITLE + "Create Gist");
+        stage.setScene(new Scene(grid));
+
+        CheckBox cbPublic = new CheckBox();
+        cbPublic.setText("Is Public?");
+        grid.add(cbPublic, 0, 0);
+
+        TextArea taDescription = new TextArea();
+        grid.add(new Label("Gist Description"), 0, 1);
+        grid.add(taDescription, 0, 2);
+
+        Button buttonAdd = new Button("Create Gist");
+        buttonAdd.setOnAction(e -> {
+            if (taDescription.getText().trim().isEmpty()) {
+                CustomAlert.showWarning("You must enter a description " +
+                        "for the Gist.");
+                return;
+            }
+
+            try {
+                // Must add a file to create a gist
+                GistFile file = new GistFile();
+                file.setFilename("HelloWorld.c");
+                file.setContent("printf(\"Hello, World!\\n\");");
+                Gist gist = new Gist();
+                gist.setPublic(cbPublic.isSelected());
+                gist.setDescription(taDescription.getText().trim());
+                gist.setFiles(Collections.singletonMap(file.getFilename(), file));
+
+                GistService service = GitHubApi.getInstance().getGistService();
+                Gist createdGist = service.createGist(gist);
+                table.getItems().add(createdGist);
+            } catch (IOException ex) {
+                CustomAlert.showExceptionDialog(ex, "Unable to create Gist");
+            }
+        });
+        grid.add(buttonAdd, 0, 3);
+
+        stage.show();
 
     }
 
@@ -96,6 +136,77 @@ public class GistOverviewWindowController {
             } catch (IOException e) {
                 CustomAlert.showExceptionDialog(e, "Error deleting Gist");
             }
+        }
+    }
+
+    public void createGistFile(ListView<GistFile> listView, Gist gist) {
+        Stage stage = new Stage();
+        stage.setTitle(UI.APP_TITLE + " - Create Gist file");
+        PaddedGridPane grid = new PaddedGridPane(5, 10);
+        stage.setScene(new Scene(grid));
+
+        TextField tfName = new TextField("sample.txt");
+        grid.add(new Label("File Name:"), 0, 0);
+        grid.add(tfName, 1, 0);
+
+        TextArea taContents = new TextArea("your contents here...");
+        grid.add(taContents, 0, 1, 2, 1);
+
+        Button buttonCreateFile = new Button("Create File");
+
+        buttonCreateFile.setOnAction(e -> {
+            if (tfName.getText().trim().isEmpty() || taContents.getText().trim().isEmpty()) {
+                CustomAlert.showWarning("You must enter a file name and contents.");
+                return;
+            }
+
+            GistFile gistFile = new GistFile();
+            gistFile.setFilename(tfName.getText());
+            gistFile.setContent(taContents.getText());
+
+            try {
+                GistService service = GitHubApi.getInstance().getGistService();
+                Gist oldGist = service.getGist(gist.getId());
+                oldGist.getFiles().put(gistFile.getFilename(), gistFile);
+                service.updateGist(oldGist);
+                listView.getItems().add(gistFile);
+                stage.hide();
+            } catch (IOException ex) {
+                CustomAlert.showExceptionDialog(ex, "Unable to create file.");
+            }
+        });
+
+        grid.add(buttonCreateFile, 0, 3);
+        stage.show();
+    }
+
+    public void deleteGistFile(ListView<GistFile> listView, Gist gist) {
+        if (listView.getSelectionModel().isEmpty()) {
+            CustomAlert.showWarning("You must select a file from the list.");
+            return;
+        }
+
+        try {
+            GistService service = GitHubApi.getInstance().getGistService();
+            Gist oldGist = service.getGist(gist.getId());
+
+            GistFile listGistFile = listView.getSelectionModel().getSelectedItem();
+            oldGist.getFiles().remove(listGistFile.getFilename());
+            // FIXME GitHub api does not currently remove
+            //  the file, this may be a client issue, checking into it
+            service.updateGist(oldGist);
+            listView.getItems().remove(listGistFile);
+        } catch (Exception e) {
+            CustomAlert.showExceptionDialog(e, "Unable to remove the Gist file.");
+        }
+    }
+
+    public void copyUrl(TableView<Gist> table) {
+        if (!table.getSelectionModel().isEmpty()) {
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putString(table.getSelectionModel().getSelectedItem().getHtmlUrl());
+            clipboard.setContent(content);
         }
     }
 }
