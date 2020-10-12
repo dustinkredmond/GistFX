@@ -62,7 +62,7 @@ public class GistOverviewWindow {
 
         Button buttonAddFile = new Button("Add File");
         Button buttonEditFile = new Button("Edit File");
-        Button buttonDeleteFile = new Button("Delete File");
+//        Button buttonDeleteFile = new Button("Delete File");
         ButtonBar buttonBar = new ButtonBar();
         // FIXME since github api does not correctly work, not adding delete currently
         buttonBar.getButtons().addAll(buttonAddFile, buttonEditFile);
@@ -82,7 +82,7 @@ public class GistOverviewWindow {
                 CustomAlert.showWarning("Please select a Gist file first.");
             }
         });
-        buttonDeleteFile.setOnAction(e -> controller.deleteGistFile(listView, gist));
+//        buttonDeleteFile.setOnAction(e -> controller.deleteGistFile(listView, gist));
 
         stage.setScene(new Scene(grid, 600, 200));
         stage.centerOnScreen();
@@ -133,6 +133,8 @@ public class GistOverviewWindow {
 
         MenuItem miCopy = new MenuItem("Copy Gist URL");
         miCopy.setOnAction(e -> controller.copyUrl(table));
+        MenuItem miBrowse = new MenuItem("View on GitHub");
+        miBrowse.setOnAction(e -> controller.browseGistUrl(table));
 
         MenuItem miAdd = new MenuItem("Add Gist");
         miAdd.setOnAction(e -> controller.createGist(table));
@@ -140,7 +142,8 @@ public class GistOverviewWindow {
         miEdit.setOnAction(e -> controller.editGist(table));
         MenuItem miDelete = new MenuItem("Delete Gist");
         miDelete.setOnAction(e -> controller.deleteGist(table));
-        cm.getItems().addAll(miCopy, new SeparatorMenuItem(), miAdd, miEdit, miDelete);
+        cm.getItems().addAll(miCopy, miBrowse,
+                new SeparatorMenuItem(), miAdd, miEdit, miDelete);
         return cm;
     }
 
@@ -191,7 +194,6 @@ public class GistOverviewWindow {
         });
 
         cm.getItems().addAll(miAdd, miEdit);
-
         miAdd.setOnAction(e -> controller.createGistFile(listView, gist));
 
         return cm;

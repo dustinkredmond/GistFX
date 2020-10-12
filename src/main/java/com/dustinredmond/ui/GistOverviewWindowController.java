@@ -18,7 +18,10 @@ import org.eclipse.egit.github.core.Gist;
 import org.eclipse.egit.github.core.GistFile;
 import org.eclipse.egit.github.core.service.GistService;
 
+import java.awt.*;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 
 public class GistOverviewWindowController {
@@ -78,7 +81,7 @@ public class GistOverviewWindowController {
                     "from the table first");
             return;
         }
-            showEditGistForm(table);
+        showEditGistForm(table);
     }
 
     private void showEditGistForm(TableView<Gist> table) {
@@ -127,7 +130,7 @@ public class GistOverviewWindowController {
         Gist gist = table.getSelectionModel().getSelectedItem();
 
         final String prompt = String.format("Are you sure you wish to remove" +
-                "the following Gist from GitHub?\n\nID: %s\nDescription: %s",
+                        "the following Gist from GitHub?\n\nID: %s\nDescription: %s",
                 gist.getId(), gist.getDescription());
         if (CustomAlert.showConfirmation(prompt)) {
             try {
@@ -207,6 +210,18 @@ public class GistOverviewWindowController {
             ClipboardContent content = new ClipboardContent();
             content.putString(table.getSelectionModel().getSelectedItem().getHtmlUrl());
             clipboard.setContent(content);
+        }
+    }
+
+    public void browseGistUrl(TableView<Gist> table) {
+        if (!table.getSelectionModel().isEmpty()) {
+            Gist gist = table.getSelectionModel().getSelectedItem();
+            try {
+                URI uri = new URI(gist.getHtmlUrl());
+                Desktop.getDesktop().browse(uri);
+            } catch (URISyntaxException | IOException e) {
+                CustomAlert.showExceptionDialog(e, "Invalid URI");
+            }
         }
     }
 }
