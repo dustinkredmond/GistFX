@@ -2,6 +2,7 @@ package com.dustinredmond.ui;
 
 import com.dustinredmond.github.GitHubApi;
 import com.dustinredmond.javafx.CustomAlert;
+import com.dustinredmond.javafx.CustomStage;
 import com.dustinredmond.javafx.PaddedGridPane;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -31,7 +32,7 @@ public class GistOverviewWindowController {
     }
 
     private void showAddGistForm(TableView<Gist> table) {
-        Stage stage = new Stage();
+        Stage stage = new CustomStage();
         PaddedGridPane grid = new PaddedGridPane(5, 10);
         stage.setTitle(UI.APP_TITLE + "Create Gist");
         stage.setScene(new Scene(grid));
@@ -40,36 +41,46 @@ public class GistOverviewWindowController {
         cbPublic.setText("Is Public?");
         grid.add(cbPublic, 0, 0);
 
-        TextArea taDescription = new TextArea();
-        grid.add(new Label("Gist Description"), 0, 1);
-        grid.add(taDescription, 0, 2);
+        TextField tfDescription = new TextField();
+        grid.add(new Label("Gist Description:"), 0, 1);
+        grid.add(tfDescription, 1, 1);
+
+        TextField tfFileName = new TextField("someFile.txt");
+        grid.add(new Label("File Name:"), 0, 2);
+        grid.add(tfFileName, 1, 2);
+
+        TextArea taContents = new TextArea("enter some code...");
+        grid.add(new Label("Contents:"), 0, 3);
+        grid.add(taContents, 0, 4, 2, 1);
 
         Button buttonAdd = new Button("Create Gist");
         buttonAdd.setOnAction(e -> {
-            if (taDescription.getText().trim().isEmpty()) {
-                CustomAlert.showWarning("You must enter a description " +
-                        "for the Gist.");
+            if (tfDescription.getText().trim().isEmpty()
+                    || tfFileName.getText().trim().isEmpty()
+                    || taContents.getText().trim().isEmpty()) {
+                CustomAlert.showWarning("All fields are required.");
                 return;
             }
 
             try {
                 // Must add a file to create a gist
                 GistFile file = new GistFile();
-                file.setFilename("HelloWorld.c");
-                file.setContent("printf(\"Hello, World!\\n\");");
+                file.setFilename(tfFileName.getText());
+                file.setContent(taContents.getText());
                 Gist gist = new Gist();
                 gist.setPublic(cbPublic.isSelected());
-                gist.setDescription(taDescription.getText().trim());
+                gist.setDescription(tfDescription.getText().trim());
                 gist.setFiles(Collections.singletonMap(file.getFilename(), file));
 
                 GistService service = GitHubApi.getInstance().getGistService();
                 Gist createdGist = service.createGist(gist);
                 table.getItems().add(createdGist);
+                stage.hide();
             } catch (IOException ex) {
                 CustomAlert.showExceptionDialog(ex, "Unable to create Gist");
             }
         });
-        grid.add(buttonAdd, 0, 3);
+        grid.add(buttonAdd, 0, 5);
 
         stage.show();
 
@@ -85,7 +96,7 @@ public class GistOverviewWindowController {
     }
 
     private void showEditGistForm(TableView<Gist> table) {
-        Stage stage = new Stage();
+        Stage stage = new CustomStage();
         stage.setTitle(String.format("%s - Edit Gist", UI.APP_TITLE));
         PaddedGridPane grid = new PaddedGridPane(5, 10);
         stage.setScene(new Scene(grid));
@@ -143,7 +154,7 @@ public class GistOverviewWindowController {
     }
 
     public void createGistFile(ListView<GistFile> listView, Gist gist) {
-        Stage stage = new Stage();
+        Stage stage = new CustomStage();
         stage.setTitle(UI.APP_TITLE + " - Create Gist file");
         PaddedGridPane grid = new PaddedGridPane(5, 10);
         stage.setScene(new Scene(grid));

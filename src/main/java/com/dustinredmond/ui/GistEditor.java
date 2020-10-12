@@ -2,6 +2,7 @@ package com.dustinredmond.ui;
 
 import com.dustinredmond.github.GitHubApi;
 import com.dustinredmond.javafx.CustomAlert;
+import com.dustinredmond.javafx.CustomStage;
 import com.dustinredmond.javafx.PaddedGridPane;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
@@ -31,7 +32,7 @@ public class GistEditor {
             content = "";
         }
 
-        Stage stage = new Stage();
+        Stage stage = new CustomStage();
         stage.setTitle(String.format("%s - %s", UI.APP_TITLE, gistFile.getFilename()));
         PaddedGridPane grid = new PaddedGridPane(5, 10);
 

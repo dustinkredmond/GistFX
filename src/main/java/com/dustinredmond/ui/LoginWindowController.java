@@ -7,6 +7,7 @@ import org.eclipse.egit.github.core.service.UserService;
 
 
 public class LoginWindowController {
+
     public boolean authenticate(PasswordField textFieldPass) {
         if (textFieldPass.getText().trim().isEmpty()) {
             return false;

@@ -2,6 +2,7 @@ package com.dustinredmond.ui;
 
 import com.dustinredmond.github.GitHubApi;
 import com.dustinredmond.javafx.CustomAlert;
+import com.dustinredmond.javafx.CustomStage;
 import com.dustinredmond.javafx.PaddedGridPane;
 import com.dustinredmond.utils.StringUtils;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -32,6 +33,7 @@ public class GistOverviewWindow {
         UI.getStage().getScene().setRoot(root);
         UI.getStage().setMaximized(true);
         PaddedGridPane grid = new PaddedGridPane(5, 10);
+        root.setTop(new CustomMenuBar());
         root.setCenter(grid);
 
         int rowIndex = 0;
@@ -54,7 +56,7 @@ public class GistOverviewWindow {
     }
 
     private void displayGistFileList(Gist gist) {
-        Stage stage = new Stage();
+        Stage stage = new CustomStage();
 
         String gistDesc = StringUtils.truncate(gist.getDescription(), 30) + "...";
         stage.setTitle(String.format("%s - %s - %s", UI.APP_TITLE, gistDesc, "Select a Gist File"));
