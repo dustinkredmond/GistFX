@@ -184,23 +184,15 @@ public class GistOverviewWindowController {
     }
 
     public void deleteGistFile(ListView<GistFile> listView, Gist gist) {
-        if (listView.getSelectionModel().isEmpty()) {
-            CustomAlert.showWarning("You must select a file from the list.");
-            return;
-        }
-
-        try {
-            GistService service = GitHubApi.getInstance().getGistService();
-            Gist oldGist = service.getGist(gist.getId());
-
-            GistFile listGistFile = listView.getSelectionModel().getSelectedItem();
-            oldGist.getFiles().remove(listGistFile.getFilename());
-            // FIXME GitHub api does not currently remove
-            //  the file, this may be a client issue, checking into it
-            service.updateGist(oldGist);
-            listView.getItems().remove(listGistFile);
-        } catch (Exception e) {
-            CustomAlert.showExceptionDialog(e, "Unable to remove the Gist file.");
+        final String prompt = "Deleting a Gist File is not currently " +
+                "available from the client. Would you like to open the Gist on GitHub?";
+        if (CustomAlert.showConfirmation(prompt)) {
+            try {
+                Desktop.getDesktop().browse(new URI(gist.getHtmlUrl()));
+            } catch (IOException | URISyntaxException e) {
+                CustomAlert.showExceptionDialog(e, "Unable to open GitHub " +
+                        "in a web browser.");
+            }
         }
     }
 

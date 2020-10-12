@@ -62,11 +62,9 @@ public class GistOverviewWindow {
 
         Button buttonAddFile = new Button("Add File");
         Button buttonEditFile = new Button("Edit File");
-//        Button buttonDeleteFile = new Button("Delete File");
+        Button buttonDeleteFile = new Button("Delete File");
         ButtonBar buttonBar = new ButtonBar();
-        // FIXME since github api does not correctly work, not adding delete currently
-        buttonBar.getButtons().addAll(buttonAddFile, buttonEditFile);
-        //buttonBar.getButtons().addAll(buttonAddFile, buttonEditFile, buttonDeleteFile);
+        buttonBar.getButtons().addAll(buttonAddFile, buttonEditFile, buttonDeleteFile);
         grid.add(buttonBar, 0, 0);
 
         ListView<GistFile> listView = getGistFileListView(gist);
@@ -82,7 +80,7 @@ public class GistOverviewWindow {
                 CustomAlert.showWarning("Please select a Gist file first.");
             }
         });
-//        buttonDeleteFile.setOnAction(e -> controller.deleteGistFile(listView, gist));
+        buttonDeleteFile.setOnAction(e -> controller.deleteGistFile(listView, gist));
 
         stage.setScene(new Scene(grid, 600, 200));
         stage.centerOnScreen();
