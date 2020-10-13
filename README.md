@@ -17,10 +17,13 @@ manipulating Gists a breeze.
          - [Or click here](https://github.com/settings/tokens/new)
        - Make sure to click the checkbox next to `gist` scope
     
-  2. Build GistFX using Apache Maven 
-     - Simply clone the repository, `cd` into the directory, then
-     run `mvn clean package`. This will generate a runnable JAR file
-     in the GistFX/target directory. Simply double-click to run.
+  2. Build or download
+     - Build GistFX with Apache Maven 
+        - Simply clone the repository, `cd` into the directory, then
+        run `mvn clean package`. This will generate a runnable JAR file
+        in the GistFX/target directory. Simply double-click to run.
+     - Download a copy from GitHub Releases (found to the right of the repo), then
+     double-click to run
 ---
 
 ### On first run
