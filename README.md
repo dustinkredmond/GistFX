@@ -8,6 +8,12 @@ GitHub Gists are a great way to store small code snippets, or even small
 projects. GistFX provides a desktop Gist client, to make editing, creating, and
 manipulating Gists a breeze.
 
+### Features
+  - Easily manage existing Gists, edit, or create new ones
+  - Built-in syntax highlighting for most modern languages
+  - Authenticate with an access token, no trusting a stranger's code
+    with your GitHub username/password.
+    - Only give the access token the scope that it needs (i.e. view/edit Gists)
 ### Getting started
 
   1. Create a GitHub Personal Access Token for this application
