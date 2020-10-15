@@ -4,6 +4,7 @@ import com.dustinredmond.github.GitHubApi;
 import com.dustinredmond.javafx.CustomAlert;
 import com.dustinredmond.javafx.CustomStage;
 import com.dustinredmond.javafx.PaddedGridPane;
+import com.dustinredmond.javafx.SyntaxArea;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -36,24 +37,26 @@ public class GistEditor {
         stage.setTitle(String.format("%s - %s", UI.APP_TITLE, gistFile.getFilename()));
         PaddedGridPane grid = new PaddedGridPane(5, 10);
 
-        TextArea taCode = new TextArea(content);
-        grid.add(taCode, 0, 1);
-        GridPane.setVgrow(taCode, Priority.ALWAYS);
-        GridPane.setHgrow(taCode, Priority.ALWAYS);
+        SyntaxArea sa = new SyntaxArea(gistFile.getFilename());
+        sa.setText(content);
+        grid.add(sa, 0, 1);
+        GridPane.setVgrow(sa, Priority.ALWAYS);
+        GridPane.setHgrow(sa, Priority.ALWAYS);
 
         Button buttonSubmit = new Button("Save Changes");
         buttonSubmit.setOnAction(e -> {
-            if (taCode.getText().trim().isEmpty()) {
+            if (sa.getText().trim().isEmpty()) {
                 CustomAlert.showWarning("Gist file name and contents are required.");
                 return;
             }
-            gistFile.setContent(taCode.getText());
+            gistFile.setContent(sa.getText());
             gist.getFiles().put(gistFile.getFilename(), gistFile);
             saveUpdatedGistFile(gist, stage);
         });
         grid.add(buttonSubmit, 0, 2);
 
         stage.setScene(new Scene(grid));
+        stage.setMaximized(true);
         stage.show();
     }
 

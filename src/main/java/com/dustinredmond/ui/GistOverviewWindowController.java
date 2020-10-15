@@ -4,6 +4,7 @@ import com.dustinredmond.github.GitHubApi;
 import com.dustinredmond.javafx.CustomAlert;
 import com.dustinredmond.javafx.CustomStage;
 import com.dustinredmond.javafx.PaddedGridPane;
+import com.dustinredmond.javafx.SyntaxArea;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -14,6 +15,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import org.eclipse.egit.github.core.Gist;
 import org.eclipse.egit.github.core.GistFile;
@@ -49,15 +52,18 @@ public class GistOverviewWindowController {
         grid.add(new Label("File Name:"), 0, 2);
         grid.add(tfFileName, 1, 2);
 
-        TextArea taContents = new TextArea("enter some code...");
-        grid.add(new Label("Contents:"), 0, 3);
-        grid.add(taContents, 0, 4, 2, 1);
+        SyntaxArea sa = new SyntaxArea(tfFileName.getText());
+        tfFileName.setOnKeyReleased(e -> sa.applyFormatting(tfFileName.getText()));
+        grid.add(new Label("File Contents:"), 0, 3);
+        grid.add(sa, 0, 4, 2, 1);
+        GridPane.setHgrow(sa, Priority.ALWAYS);
+        GridPane.setVgrow(sa, Priority.ALWAYS);
 
         Button buttonAdd = new Button("Create Gist");
         buttonAdd.setOnAction(e -> {
             if (tfDescription.getText().trim().isEmpty()
                     || tfFileName.getText().trim().isEmpty()
-                    || taContents.getText().trim().isEmpty()) {
+                    || sa.getText().trim().isEmpty()) {
                 CustomAlert.showWarning("All fields are required.");
                 return;
             }
@@ -66,7 +72,7 @@ public class GistOverviewWindowController {
                 // Must add a file to create a gist
                 GistFile file = new GistFile();
                 file.setFilename(tfFileName.getText());
-                file.setContent(taContents.getText());
+                file.setContent(sa.getText());
                 Gist gist = new Gist();
                 gist.setPublic(cbPublic.isSelected());
                 gist.setDescription(tfDescription.getText().trim());
@@ -82,6 +88,7 @@ public class GistOverviewWindowController {
         });
         grid.add(buttonAdd, 0, 5);
 
+        stage.setMaximized(true);
         stage.show();
 
     }
@@ -155,24 +162,28 @@ public class GistOverviewWindowController {
         PaddedGridPane grid = new PaddedGridPane(5, 10);
         stage.setScene(new Scene(grid));
 
-        TextField tfName = new TextField("sample.txt");
+        TextField tfName = new TextField("Sample.java");
         grid.add(new Label("File Name:"), 0, 0);
         grid.add(tfName, 1, 0);
 
-        TextArea taContents = new TextArea("your contents here...");
-        grid.add(taContents, 0, 1, 2, 1);
+        SyntaxArea sa = new SyntaxArea(tfName.getText());
+        sa.setText(getDefaultJavaText());
+        tfName.setOnKeyReleased(e -> sa.applyFormatting(tfName.getText()));
+        grid.add(sa, 0, 1, 2, 1);
+        GridPane.setVgrow(sa, Priority.ALWAYS);
+        GridPane.setHgrow(sa, Priority.ALWAYS);
 
         Button buttonCreateFile = new Button("Create File");
 
         buttonCreateFile.setOnAction(e -> {
-            if (tfName.getText().trim().isEmpty() || taContents.getText().trim().isEmpty()) {
+            if (tfName.getText().trim().isEmpty() || sa.getText().trim().isEmpty()) {
                 CustomAlert.showWarning("You must enter a file name and contents.");
                 return;
             }
 
             GistFile gistFile = new GistFile();
             gistFile.setFilename(tfName.getText());
-            gistFile.setContent(taContents.getText());
+            gistFile.setContent(sa.getText());
 
             try {
                 GistService service = GitHubApi.getInstance().getGistService();
@@ -187,7 +198,14 @@ public class GistOverviewWindowController {
         });
 
         grid.add(buttonCreateFile, 0, 3);
+        stage.setMaximized(true);
         stage.show();
+    }
+
+    private String getDefaultJavaText() {
+        return "public class Sample {\n\n" +
+                "\tpublic static void main(String[] args) {\n" +
+                "\t\tSystem.out.println(\"Hello, World!\");\n\t}\n\n}";
     }
 
     public void deleteGistFile(Gist gist) {
