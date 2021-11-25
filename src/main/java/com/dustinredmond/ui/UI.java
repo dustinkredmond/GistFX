@@ -37,4 +37,5 @@ public class UI extends Application {
 
     public static final String APP_TITLE = "GistFX";
     public static final String APP_ICON = "icons8-repository-48.png";
+    //Comment
 }
