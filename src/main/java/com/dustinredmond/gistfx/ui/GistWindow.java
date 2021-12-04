@@ -793,8 +793,8 @@ public class GistWindow {
 		});
 		menuBar.addToViewMenu(miToggleBB, false);
 		menuBar.addToViewMenu("Toggle Fullscreen", e -> {
-			Scener.getStage(300).setFullScreen(!Scener.getStage(300).isFullScreen());
-			if (Scener.getStage(300).isFullScreen()) {
+			Scener.getStage(sceneId).setFullScreen(!Scener.getStage(sceneId).isFullScreen());
+			if (Scener.getStage(sceneId).isFullScreen()) {
 				splitPane.setDividerPosition(0, .15);
 			}
 			else {
