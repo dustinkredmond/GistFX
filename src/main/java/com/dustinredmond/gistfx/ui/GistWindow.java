@@ -813,7 +813,7 @@ public class GistWindow {
 			final String   version = getClass().getPackage().getImplementationVersion();
 			final Label    text    = new Label(Scener.APP_TITLE + "\nVersion: " + version + "\n");
 			final TextArea taLicense = new TextArea(
-					"Copyright \u00A9 " + year + "\n\tDustin K. Redmond <dredmond@gaports.com>\n\tMichael D. Sims <mike@simtechdata.com>\n\n" +
+					"Copyright \u00A9 " + year + "\n\tDustin K. Redmond <dustin@dustinredmond.com>\n\tMichael D. Sims <mike@simtechdata.com>\n\n" +
 					"Permission is hereby granted, free of charge, to any person obtaining a copy\n" +
 					"of this software and associated documentation files (the \"Software\"), to deal\n" +
 					"in the Software without restriction, including without limitation the rights\n" +
